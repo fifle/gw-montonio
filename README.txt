@@ -1,4 +1,4 @@
-=== Montonio for GiveWP – Payment gateway for banks in Estonia, Latvia, Lithuania, Finland & Poland ===
+=== Montonio for GiveWP ===
 Contributors: pablothef
 Donate link: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%20choco.%20Support%20the%20project!&detail=Annetus+GiveWP&payee=Pavel+Flei%C5%A1er&iban=EE614204278622417401&pp=paflei&rev=pavelvtd
 Tags: banklink, pangalink, estonia, latvia, lithuania, poland, finland, payment gateway, givewp, internet bank, i-bank
