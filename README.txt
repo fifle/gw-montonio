@@ -23,8 +23,9 @@ Supported banks:
 * Finland: OP, Nordea, Danske Bank, Säästöpankki, POP Pankki, Oma Säästöpankki, S-Pankki, Ålandsbanken, Handelsbanken, Revolut
 * Poland: Blik, Bank Polski, Bank Pekao, Santander, ING, mBank, BNP Paribas, Millennium Bank, Alior Bank, Credit Agricole, Inteligo, Revolut
 
-Montonio integration for credit cards through Stripe is not supported by this add-on yet.
-This plugin may not work at the same time as the Montonio for WooCommerce is enabled. We hope to fix this problem with the next plugin release!
+Important notes:
+* Montonio integration for credit cards through Stripe is not supported by this add-on yet.
+* This plugin may not work at the same time as the Montonio for WooCommerce is enabled. We hope to fix this problem with the next plugin release!
 
 == Installation ==
 
