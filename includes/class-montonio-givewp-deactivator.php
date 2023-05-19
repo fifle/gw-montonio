@@ -3,7 +3,7 @@
 /**
  * Fired during plugin deactivation
  *
- * @link       http://donate.jewish.ee
+ * @link       http://fleisher.ee
  * @since      1.0.0
  *
  * @package    montonio_Givewp

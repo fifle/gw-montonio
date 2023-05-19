@@ -6,7 +6,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       http://donate.jewish.ee
+ * @link       http://fleisher.ee
  * @since      1.0.0
  *
  * @package    montonio_Givewp

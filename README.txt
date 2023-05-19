@@ -1,4 +1,4 @@
-=== Montonio for GiveWP ===
+=== Payment Gateway for Montonio on GiveWP ===
 Contributors: pablothef
 Donate link: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%20choco.%20Support%20the%20project!&detail=Annetus+GiveWP&payee=Pavel+Flei%C5%A1er&iban=EE614204278622417401&pp=paflei&rev=pavelvtd
 Tags: banklink, pangalink, estonia, latvia, lithuania, poland, finland, payment gateway, givewp, internet bank, i-bank
@@ -30,7 +30,7 @@ This plugin may not work at the same time as the Montonio for WooCommerce is ena
 
 This section describes how to install the plugin and get it working.
 
-1. Upload `montonio-givewp` to the `/wp-content/plugins/` directory
+1. Upload `gw-montonio` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Activate Montonio gateway on GiveWP Settings (Settings > Payment Gateways > check "Enabled" checkbox for Montonio gateway)
 
@@ -38,7 +38,7 @@ This section describes how to install the plugin and get it working.
 
 = How to get access and secret key? =
 
-Both sets of keys can be aquired from the Montonio Partner System. To generate access and secret keys for your Montonio account, go to the Stores page of the partner system. Click on your store and navigate to the API Keys tab.
+Both sets of keys can be acquired from the Montonio Partner System. To generate access and secret keys for your Montonio account, go to the Stores page of the partner system. Click on your store and navigate to the API Keys tab.
 
 = How to get started with new Montonio account? =
 
@@ -49,7 +49,7 @@ To get an account and access the partner system, please fill in the registration
 Currently connecting solutions related to accepting donations is either quite difficult for a person who does not have technical skills, or has a monthly fee, which may be inappropriate in cases where the collection is organized by a private person or an NGO that does not have regular donors. GiveWP is a great tool that helps thousands of organizations to start their campaign securely and for free.
 We believe it is important to make organizing fundraisers in the Baltics, Finland and Poland a quick, convenient method for fundraisers.
 
-Montonio for GiveWP plugin is just an intermediary that sends a request to Montonio with the account number, the name of the recipient, and the amount of the payment. The bank chosen by the user is responsible for the security of the transfer and all actions related to user authentication.
+Payment Gateway for Montonio on GiveWP plugin is just an intermediary that sends a request to Montonio with the account number, the name of the recipient, and the amount of the payment. The bank chosen by the user is responsible for the security of the transfer and all actions related to user authentication.
 
 = Who can I turn to for technical assistance and other questions? =
 

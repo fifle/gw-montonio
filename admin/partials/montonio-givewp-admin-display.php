@@ -5,7 +5,7 @@
  *
  * This file is used to markup the admin-facing aspects of the plugin.
  *
- * @link       http://donate.jewish.ee
+ * @link       http://fleisher.ee
  * @since      1.0.0
  *
  * @package    montonio_Givewp

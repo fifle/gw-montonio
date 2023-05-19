@@ -8,19 +8,19 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              http://donate.jewish.ee
+ * @link              http://fleisher.ee
  * @since             1.0.0
  * @package           montonio_Givewp
  *
  * @wordpress-plugin
- * Plugin Name:       Montonio for GiveWP
+ * Plugin Name:       Payment Gateway for Montonio on GiveWP
  * Plugin URI:
- * Description:       Adding Montonio gateway to GiveWP plugin for your crowdfundings. Montonio supports all Baltic and Finnish payment methods (banklink, pangalink). Just activate it and you can start accepting donations with Montonio.
+ * Description:       Add-on for GiveWP Donation Plugin allows to accept payments via Montonio payment gateway.
  * Version:           1.0.0
  * Author:            Pavel Fleisher
  * Author URI:        http://fleisher.ee
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * License:           GPL-3.0+
+ * License URI:       https://spdx.org/licenses/GPL-3.0-or-later.html
  * Text Domain:       montonio-givewp
  * Domain Path:       /languages
  */
