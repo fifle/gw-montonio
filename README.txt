@@ -64,5 +64,3 @@ Feel free to donate to a developer for a cup of coffee via Donationbox.ee servic
 
 = 1.0 =
 * Initial release.
-
-`<?php code(); // goes in backticks ?>`
