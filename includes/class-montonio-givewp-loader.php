@@ -417,30 +417,34 @@ class montonio_Givewp_Loader
                 $merchant_notification_url = get_site_url() . '/?give-listener=montonio&id=' . $payment_id . '&give-form-id=' . $form_id . '&payment-mode=montonio';
                 $merchant_return_url = get_site_url() . '/?give-listener=montonio&id=' . $payment_id . '&give-form-id=' . $form_id . '&payment-mode=montonio';
 
-                // Checking current WP website locale (Polylang plugin) to set the language for Montonio payment page
-                switch (pll_current_language()) {
-                    case "et":
-                        $current_locale = "et";
-                        break;
-                    case "lv":
-                        $current_locale = "lv";
-                        break;
-                    case "lt":
-                        $current_locale = "lt";
-                        break;
-                    case "pl_PL":
-                        $current_locale = "pl";
-                        break;
-                    case "fi":
-                        $current_locale = "fi";
-                        break;
-                    case "ru_RU" or "ru_UA":
-                        $current_locale = "ru";
-                        break;
-                    default:
-                        $current_locale = 'en_US';
-                        break;
-                }
+                // Checking current WP website locale (Polylang plugin only) to set the language for Montonio payment page
+	            if ( function_exists( 'pll_the_languages' ) ) {
+		            switch (pll_current_language()) {
+			            case "et":
+				            $current_locale = "et";
+				            break;
+			            case "lv":
+				            $current_locale = "lv";
+				            break;
+			            case "lt":
+				            $current_locale = "lt";
+				            break;
+			            case "pl_PL":
+				            $current_locale = "pl";
+				            break;
+			            case "fi":
+				            $current_locale = "fi";
+				            break;
+			            case "ru_RU" or "ru_UA":
+				            $current_locale = "ru";
+				            break;
+			            default:
+				            $current_locale = 'en_US';
+				            break;
+		            }
+	            } else {
+		            $current_locale = 'en_US';
+	            }
 
                 $paymentData = array(
                     'amount' => $donation_amount, // Make sure this is a float

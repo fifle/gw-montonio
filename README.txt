@@ -4,7 +4,7 @@ Donate link: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%2
 Tags: banklink, pangalink, estonia, latvia, lithuania, poland, finland, payment gateway, givewp, internet bank, i-bank
 Requires at least: 3.0.1
 Tested up to: 6.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
@@ -61,6 +61,9 @@ Always happy to help you set up donations with Estonian, Latvian, Lithuanian, Po
 Feel free to donate to a developer for a cup of coffee via Donationbox.ee service: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%20choco.%20Support%20the%20project!&detail=Annetus+GiveWP&payee=Pavel+Flei%C5%A1er&iban=EE614204278622417401&pp=paflei&rev=pavelvtd
 
 == Changelog ==
+
+= 1.0.1 =
+Fixed a critical bug for those not using the Polylang plugin.
 
 = 1.0 =
 * Initial release.
