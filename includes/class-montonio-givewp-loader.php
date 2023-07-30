@@ -134,7 +134,6 @@ class montonio_Givewp_Loader
             $accessKey = give_get_option('montonio_access_key');
             $token = $_REQUEST['payment_token'];
             $payment_id = $_REQUEST['id'];
-            $form_id = $_REQUEST['form_id'];
             $secretKey = give_get_option('montonio_secret_key');
 
             $decoded = MontonioPaymentsSDK::decodePaymentToken($token, $secretKey);
