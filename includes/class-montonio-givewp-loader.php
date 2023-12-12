@@ -132,8 +132,14 @@ class montonio_Givewp_Loader
             // We send the payment_token query parameter upon successful payment
             // This is both with merchant_notification_url and merchant_return_url
             $accessKey = give_get_option('montonio_access_key');
-            $token = $_REQUEST['payment_token'];
-            $payment_id = $_REQUEST['id'];
+	        $token = isset($_REQUEST['payment_token']) ? sanitize_text_field($_REQUEST['payment_token']) : '';
+	        if ( !validate_token($token) ) {
+		        // Handle invalid token case
+	        }
+	        $payment_id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+	        if ( $payment_id <= 0 ) {
+		        // Handle invalid payment ID case
+	        }
             $secretKey = give_get_option('montonio_secret_key');
 
             $decoded = MontonioPaymentsSDK::decodePaymentToken($token, $secretKey);
@@ -461,7 +467,8 @@ class montonio_Givewp_Loader
                     'preselected_locale' => $current_locale, // See available locale options in the docs
                 );
 
-                $sdk->setPaymentData($paymentData);
+	            $paymentData = array_map('esc_attr', $paymentData);
+	            $sdk->setPaymentData($paymentData);
                 $paymentUrl = $sdk->getPaymentUrl();
 
                 // The payment URL customer should be redirected to
