@@ -3,7 +3,7 @@ Contributors: pablothef
 Donate link: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%20choco.%20Support%20the%20project!&detail=Annetus+GiveWP&payee=Pavel+Flei%C5%A1er&iban=EE614204278622417401&pp=paflei&rev=pavelvtd
 Tags: banklink, pangalink, estonia, latvia, lithuania, poland, finland, payment gateway, givewp, internet bank, i-bank
 Requires at least: 3.0.1
-Tested up to: 6.2
+Tested up to: 6.4.2
 Stable tag: 1.0.1
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
@@ -26,6 +26,7 @@ Supported banks:
 Important notes:
 * Montonio integration for credit cards through Stripe is not supported by this add-on yet.
 * This plugin may not work at the same time as the Montonio for WooCommerce is enabled. We hope to fix this problem with the next plugin release!
+* Montonio integration with GiveWP doesn't support recurring payments at this point.
 
 == Installation ==
 
@@ -58,7 +59,7 @@ Always happy to help you set up donations with Estonian, Latvian, Lithuanian, Po
 
 = I'd like to support you. How can I do it? =
 
-Feel free to donate to a developer for a cup of coffee via Donationbox.ee service: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%20choco.%20Support%20the%20project!&detail=Annetus+GiveWP&payee=Pavel+Flei%C5%A1er&iban=EE614204278622417401&pp=paflei&rev=pavelvtd
+Feel free to donate to a cup of coffee via Donationbox.ee service: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%20choco.%20Support%20the%20project!&detail=Annetus+GiveWP&payee=Pavel+Flei%C5%A1er&iban=EE614204278622417401&pp=paflei&rev=pavelvtd
 
 == Changelog ==
 
