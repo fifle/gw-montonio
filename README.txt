@@ -62,6 +62,8 @@ Always happy to help you set up donations with Estonian, Latvian, Lithuanian, Po
 Feel free to donate to a cup of coffee via Donationbox.ee service: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%20choco.%20Support%20the%20project!&detail=Annetus+GiveWP&payee=Pavel+Flei%C5%A1er&iban=EE614204278622417401&pp=paflei&rev=pavelvtd
 
 == Changelog ==
+= 1.0.2 =
+Migrated from Montonio API v1 to v2 as the old one will be discontinued in 09.2024.
 
 = 1.0.1 =
 Fixed a critical bug for those not using the Polylang plugin.

@@ -16,7 +16,7 @@
  * Plugin Name:       Payment Gateway for Montonio on GiveWP
  * Plugin URI:
  * Description:       Add-on for GiveWP Donation Plugin allows to accept payments via Montonio payment gateway.
- * Version:           1.0.0
+* Version:           1.0.2
  * Author:            Pavel Fleisher
  * Author URI:        http://fleisher.ee
  * License:           GPL-3.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'montonio_GIVEWP_VERSION', '1.0.1' );
+define( 'montonio_GIVEWP_VERSION', '1.0.2' );
 
 /**
  * The code that runs during plugin activation.

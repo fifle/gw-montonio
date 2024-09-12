@@ -132,29 +132,41 @@ class montonio_Givewp_Loader
             // We send the payment_token query parameter upon successful payment
             // This is both with merchant_notification_url and merchant_return_url
             $accessKey = give_get_option('montonio_access_key');
-	        $token = isset($_REQUEST['payment_token']) ? sanitize_text_field($_REQUEST['payment_token']) : '';
-	        if ( !validate_token($token) ) {
-		        // Handle invalid token case
-	        }
-	        $payment_id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
-	        if ( $payment_id <= 0 ) {
-		        // Handle invalid payment ID case
-	        }
+            $token = isset($_REQUEST['payment_token']) ? $_REQUEST['payment_token'] : (isset($_REQUEST['order-token']) ? $_REQUEST['order-token'] : '');
+            $payment_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
+            $form_id = isset($_REQUEST['give-form-id']) ? $_REQUEST['give-form-id'] : '';
             $secretKey = give_get_option('montonio_secret_key');
+
+            if (empty($token) || empty($payment_id) || empty($form_id)) {
+                throw new Exception('Missing required parameters: ' . json_encode($_REQUEST));
+            }
 
             $decoded = MontonioPaymentsSDK::decodePaymentToken($token, $secretKey);
 
+            Log::info('Decoded token:', ['decoded' => json_encode($decoded)]);
+
+            if (!isset($decoded->accessKey) || !isset($decoded->merchant_reference) || !isset($decoded->payment_status)) {
+                throw new Exception('Invalid token structure: ' . json_encode($decoded));
+            }
+
             if (
-                $decoded->access_key === $accessKey &&
+                $decoded->accessKey === $accessKey &&
                 $decoded->merchant_reference === $payment_id &&
-                $decoded->status === 'finalized'
+                $decoded->payment_status === 'PAID'
             ) {
-                give_update_payment_status($payment_id);
+                give_update_payment_status($payment_id, 'publish');
+                Log::info('Payment successful', ['payment_id' => $payment_id]);
                 wp_redirect(give_get_success_page_uri());
             } else {
                 give_update_payment_status($payment_id, 'abandoned');
+                Log::info('Payment abandoned', [
+                    'payment_id' => $payment_id,
+                    'decoded' => json_encode($decoded),
+                    'accessKey_match' => $decoded->accessKey === $accessKey,
+                    'merchant_reference_match' => $decoded->merchant_reference === $payment_id,
+                    'payment_status' => $decoded->payment_status
+                ]);
                 wp_redirect(give_get_failed_transaction_uri());
-                Log::info('returned abandoned');
             }
 
         } catch (Exception $exception) {
@@ -467,8 +479,7 @@ class montonio_Givewp_Loader
                     'preselected_locale' => $current_locale, // See available locale options in the docs
                 );
 
-	            $paymentData = array_map('esc_attr', $paymentData);
-	            $sdk->setPaymentData($paymentData);
+                $sdk->setPaymentData($paymentData);
                 $paymentUrl = $sdk->getPaymentUrl();
 
                 // The payment URL customer should be redirected to
@@ -482,10 +493,7 @@ class montonio_Givewp_Loader
                 // Send user back to checkout.
                 give_send_back_to_checkout('?payment-mode=montonio');
             } // End if().
-
-            // Auto set payment to abandoned in one hour if donor is not able to donate in that time.
-            wp_schedule_single_event(current_time('timestamp', 1) + HOUR_IN_SECONDS, 'give_payumoney_set_donation_abandoned', array($payment));
-        }
+		}
 
         add_action('give_gateway_montonio', 'montonio_for_give_process_montonio_donation');
     }

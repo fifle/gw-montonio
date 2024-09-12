@@ -1,25 +1,24 @@
 {
-    "name": "pfleiser/montonio-givewp",
-    "type": "wordpress-plugin",
-    "autoload": {
-        "psr-4": {
-            "Pfleiser\\montonioGivewp\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Pavel Fleiser",
-            "email": "pavel@fleisher.ee"
-        }
-    ],
-    "require": {
-        "composer/installers": "~1.0",
-        "veltix/montonio-php": "^1.0",
-      "ext-json": "*"
-    },
-    "config": {
-        "allow-plugins": {
-            "composer/installers": true
-        }
+  "name": "pfleiser/montonio-givewp",
+  "type": "wordpress-plugin",
+  "autoload": {
+    "psr-4": {
+      "Pfleiser\\montonioGivewp\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "Pavel Fleiser",
+      "email": "pavel@fleisher.ee"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0",
+    "ext-json": "*"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    }
+  }
 }
