@@ -3,7 +3,7 @@
 /**
  * We use php-jwt for JWT creation
  */
-require_once 'jwt/JWT.php';
+require_once "jwt/JWT.php";
 
 /**
  * SDK for Montonio Payments.
@@ -11,7 +11,6 @@ require_once 'jwt/JWT.php';
  */
 class MontonioPaymentsSDK
 {
-    
     /**
      * Payment Data for Montonio Payment Token generation
      * @see https://payments-docs.montonio.com/#generating-the-payment-token
@@ -44,17 +43,17 @@ class MontonioPaymentsSDK
     /**
      * Root URL for the Montonio Payments Sandbox API
      */
-    const MONTONIO_PAYMENTS_SANDBOX_API_URL = 'https://sandbox-stargate.montonio.com';
+    const MONTONIO_PAYMENTS_SANDBOX_API_URL = "https://sandbox-stargate.montonio.com";
 
     /**
      * Root URL for the Montonio Payments API
      */
-    const MONTONIO_PAYMENTS_API_URL = 'https://stargate.montonio.com';
+    const MONTONIO_PAYMENTS_API_URL = "https://stargate.montonio.com";
 
     public function __construct($accessKey, $secretKey, $environment)
     {
-        $this->_accessKey   = $accessKey;
-        $this->_secretKey   = $secretKey;
+        $this->_accessKey = $accessKey;
+        $this->_secretKey = $secretKey;
         $this->_environment = $environment;
     }
 
@@ -66,16 +65,17 @@ class MontonioPaymentsSDK
     public function getPaymentUrl()
     {
         $token = $this->_generatePaymentToken();
-        $apiUrl = ($this->_environment === 'sandbox')
-            ? self::MONTONIO_PAYMENTS_SANDBOX_API_URL
-            : self::MONTONIO_PAYMENTS_API_URL;
+        $apiUrl =
+            $this->_environment === "sandbox"
+                ? self::MONTONIO_PAYMENTS_SANDBOX_API_URL
+                : self::MONTONIO_PAYMENTS_API_URL;
 
-        $response = $this->_sendTokenToApi($apiUrl . '/api/orders', $token);
-        
-        if (isset($response['paymentUrl'])) {
-            return $response['paymentUrl'];
+        $response = $this->_sendTokenToApi($apiUrl . "/api/orders", $token);
+
+        if (isset($response["paymentUrl"])) {
+            return $response["paymentUrl"];
         } else {
-            throw new Exception('Failed to get payment URL from Montonio API');
+            throw new Exception("Failed to get payment URL from Montonio API");
         }
     }
 
@@ -92,15 +92,19 @@ class MontonioPaymentsSDK
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['data' => $token]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(["data" => $token]));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+        ]);
 
         $result = curl_exec($ch);
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         if ($status >= 400) {
-            throw new Exception('API request failed with status ' . $status . ': ' . $result);
+            throw new Exception(
+                "API request failed with status " . $status . ": " . $result
+            );
         }
 
         return json_decode($result, true);
@@ -111,50 +115,57 @@ class MontonioPaymentsSDK
      *
      * @return string
      */
-protected function _generatePaymentToken()
+    protected function _generatePaymentToken()
     {
-        $paymentData = array(
-            'accessKey'         => $this->_accessKey,
-            'merchantReference' => substr((string) $this->_paymentData['merchant_reference'], 0, 255),
-            'returnUrl'         => $this->_paymentData['merchant_return_url'],
-            'notificationUrl'   => $this->_paymentData['merchant_notification_url'] ?? '',
-            'currency'          => $this->_paymentData['currency'],
-            'grandTotal'        => (float) $this->_paymentData['amount'],
-            'locale'            => 'en',
-            'billingAddress'    => [
-                'firstName'    => $this->_paymentData['checkout_first_name'],
-                'lastName'     => $this->_paymentData['checkout_last_name'],
-                'email'        => $this->_paymentData['checkout_email'],
-                'addressLine1' => $this->_paymentData['checkout_address'] ?? '',
-                'locality'     => $this->_paymentData['checkout_city'] ?? '',
-                'country'      => $this->_paymentData['checkout_country'] ?? '',
-                'postalCode'   => $this->_paymentData['checkout_postcode'] ?? '',
+        $paymentData = [
+            "accessKey" => $this->_accessKey,
+            "merchantReference" => substr(
+                (string) $this->_paymentData["merchant_reference"],
+                0,
+                255
+            ),
+            "returnUrl" => $this->_paymentData["merchant_return_url"],
+            "notificationUrl" =>
+                $this->_paymentData["merchant_notification_url"] ?? "",
+            "currency" => $this->_paymentData["currency"],
+            "grandTotal" => (float) $this->_paymentData["amount"],
+            "locale" => "en",
+            "billingAddress" => [
+                "firstName" => $this->_paymentData["checkout_first_name"],
+                "lastName" => $this->_paymentData["checkout_last_name"],
+                "email" => $this->_paymentData["checkout_email"],
+                "addressLine1" => $this->_paymentData["checkout_address"] ?? "",
+                "locality" => $this->_paymentData["checkout_city"] ?? "",
+                "country" => $this->_paymentData["checkout_country"] ?? "",
+                "postalCode" => $this->_paymentData["checkout_postcode"] ?? "",
             ],
-            'lineItems'         => [
+            "lineItems" => [
                 [
-                    'name'       => 'Donation',
-                    'quantity'   => 1,
-                    'finalPrice' => (float) $this->_paymentData['amount'],
+                    "name" => "Donation",
+                    "quantity" => 1,
+                    "finalPrice" => (float) $this->_paymentData["amount"],
                 ],
             ],
-            'payment'           => [
-                'method'        => 'paymentInitiation',
-                'methodDisplay' => 'Pay with your bank',
-                'amount'        => (float) $this->_paymentData['amount'],
-                'currency'      => $this->_paymentData['currency'],
-                'methodOptions' => [
-                    'paymentDescription' => 'Donation for ' . $this->_paymentData['merchant_name'],
+            "payment" => [
+                "method" => "paymentInitiation",
+                "methodDisplay" => "Pay with your bank",
+                "amount" => (float) $this->_paymentData["amount"],
+                "currency" => $this->_paymentData["currency"],
+                "methodOptions" => [
+                    "paymentDescription" => $this->_generatePaymentDescription(),
                 ],
             ],
-            'exp'               => time() + (10 * 60), // Token expires in 10 minutes
-        );
+            "exp" => time() + 10 * 60, // Token expires in 10 minutes
+        ];
 
-        if (isset($this->_paymentData['preselected_aspsp'])) {
-            $paymentData['payment']['methodOptions']['preferredProvider'] = (string) $this->_paymentData['preselected_aspsp'];
+        if (isset($this->_paymentData["preselected_aspsp"])) {
+            $paymentData["payment"]["methodOptions"]["preferredProvider"] =
+                (string) $this->_paymentData["preselected_aspsp"];
         }
 
-        if (isset($this->_paymentData['preselected_country'])) {
-            $paymentData['payment']['methodOptions']['preferredCountry'] = (string) $this->_paymentData['preselected_country'];
+        if (isset($this->_paymentData["preselected_country"])) {
+            $paymentData["payment"]["methodOptions"]["preferredCountry"] =
+                (string) $this->_paymentData["preselected_country"];
         }
 
         foreach ($paymentData as $key => $value) {
@@ -190,7 +201,7 @@ protected function _generatePaymentToken()
     public static function decodePaymentToken($token, $secretKey)
     {
         Firebase\JWT\JWT::$leeway = 60 * 5; // 5 minutes
-        return Firebase\JWT\JWT::decode($token, $secretKey, array('HS256'));
+        return Firebase\JWT\JWT::decode($token, $secretKey, ["HS256"]);
     }
 
     /**
@@ -202,9 +213,9 @@ protected function _generatePaymentToken()
      */
     static function getBearerToken($accessKey, $secretKey)
     {
-        $data = array(
-            'access_key' => $accessKey,
-        );
+        $data = [
+            "access_key" => $accessKey,
+        ];
 
         return Firebase\JWT\JWT::encode($data, $secretKey);
     }
@@ -219,48 +230,52 @@ protected function _generatePaymentToken()
     protected function _apiRequest($url, $options)
     {
         $context = stream_context_create($options);
-        $result  = @file_get_contents($url, false, $context);
+        $result = @file_get_contents($url, false, $context);
 
         if ($result === false) {
-            return array(
+            return [
                 "status" => "ERROR",
-                "data"   => $result,
-            );
+                "data" => $result,
+            ];
         } else {
-            return array(
+            return [
                 "status" => "SUCCESS",
-                "data"   => json_decode($result),
-            );
+                "data" => json_decode($result),
+            ];
         }
     }
 
     /**
      * Fetch info about banks and card processors that
      * can be shown to the customer at checkout.
-     * 
-     * Banks have different identifiers for separate regions, 
+     *
+     * Banks have different identifiers for separate regions,
      * but the identifier for card payments is uppercase CARD
      * in all regions.
      * @see MontonioPaymentsCheckout::$bankList
-     * 
+     *
      * @return array Array containing the status of the request and the banklist
      */
     public function fetchBankList()
     {
-        $url = $this->_environment === 'sandbox'
-        ? 'https://api.sandbox-payments.montonio.com/pis/v2/merchants/aspsps'
-        : 'https://api.payments.montonio.com/pis/v2/merchants/aspsps';
+        $url =
+            $this->_environment === "sandbox"
+                ? "https://api.sandbox-payments.montonio.com/pis/v2/merchants/aspsps"
+                : "https://api.payments.montonio.com/pis/v2/merchants/aspsps";
 
-        $options = array(
-            'http' => array(
-                'header' => "Content-Type: application/json\r\n" .
-                "Authorization: Bearer " . MontonioPaymentsSDK::getBearerToken(
-                    $this->_accessKey,
-                    $this->_secretKey
-                ) . "\r\n",
-                'method' => 'GET',
-            ),
-        );
+        $options = [
+            "http" => [
+                "header" =>
+                    "Content-Type: application/json\r\n" .
+                    "Authorization: Bearer " .
+                    MontonioPaymentsSDK::getBearerToken(
+                        $this->_accessKey,
+                        $this->_secretKey
+                    ) .
+                    "\r\n",
+                "method" => "GET",
+            ],
+        ];
         return $this->_apiRequest($url, $options);
     }
 
@@ -273,17 +288,68 @@ protected function _generatePaymentToken()
     public function validatePaymentToken($token)
     {
         try {
-            $decoded = JWT::decode($token, new \Firebase\JWT\Key($this->_secretKey, 'HS256'));
+            $decoded = JWT::decode(
+                $token,
+                new \Firebase\JWT\Key($this->_secretKey, "HS256")
+            );
             $data = (array) $decoded;
-            
-            if ($data['paymentStatus'] === 'PAID' &&
-                $data['accessKey'] === $this->_accessKey) {
+
+            if (
+                $data["paymentStatus"] === "PAID" &&
+                $data["accessKey"] === $this->_accessKey
+            ) {
                 return $data;
             } else {
-                throw new Exception('Invalid payment status or access key');
+                throw new Exception("Invalid payment status or access key");
             }
         } catch (Exception $e) {
-            throw new Exception('Invalid token: ' . $e->getMessage());
+            throw new Exception("Invalid token: " . $e->getMessage());
         }
+    }
+
+    protected function _generatePaymentDescription()
+    {
+        $description_parts = [];
+
+        // Add base description (merchant name)
+        $description_parts[] = $this->_paymentData["merchant_name"];
+
+        // Add campaign name if enabled and available
+        if (
+            !empty($this->_paymentData["campaign_name"]) &&
+            $this->_paymentData["description_settings"][
+                "include_campaign_name"
+            ] === "on"
+        ) {
+            $description_parts[] = $this->_paymentData["campaign_name"];
+        }
+
+        // Add donation ID if enabled
+        if (
+            $this->_paymentData["description_settings"][
+                "include_donation_id"
+            ] === "on"
+        ) {
+            $description_parts[] = "#" . $this->_paymentData["donation_id"];
+        }
+
+        // Add personal code if enabled and available
+        if (
+            !empty($this->_paymentData["personal_code"]) &&
+            $this->_paymentData["description_settings"][
+                "include_personal_code"
+            ] === "on"
+        ) {
+            $description_parts[] = $this->_paymentData["personal_code"];
+        }
+
+        // Get separator from settings or use default
+        $separator = !empty(
+            $this->_paymentData["description_settings"]["separator"]
+        )
+            ? $this->_paymentData["description_settings"]["separator"]
+            : " / ";
+
+        return implode($separator, $description_parts);
     }
 }

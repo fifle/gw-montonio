@@ -17,7 +17,6 @@ use Give\Log\Log;
  */
 class montonio_Givewp_Loader
 {
-
     /**
      * The array of actions registered with WordPress.
      *
@@ -43,11 +42,10 @@ class montonio_Givewp_Loader
      */
     public function __construct()
     {
+        $this->actions = [];
+        $this->filters = [];
 
-        $this->actions = array();
-        $this->filters = array();
-
-        add_action('init', [$this, 'listen']);
+        add_action("init", [$this, "listen"]);
     }
 
     /**
@@ -60,9 +58,21 @@ class montonio_Givewp_Loader
      * @param int $accepted_args Optional. The number of arguments that should be passed to the $callback. Default is 1.
      * @since    1.0.0
      */
-    public function add_action($hook, $component, $callback, $priority = 10, $accepted_args = 1)
-    {
-        $this->actions = $this->add($this->actions, $hook, $component, $callback, $priority, $accepted_args);
+    public function add_action(
+        $hook,
+        $component,
+        $callback,
+        $priority = 10,
+        $accepted_args = 1
+    ) {
+        $this->actions = $this->add(
+            $this->actions,
+            $hook,
+            $component,
+            $callback,
+            $priority,
+            $accepted_args
+        );
     }
 
     /**
@@ -75,9 +85,21 @@ class montonio_Givewp_Loader
      * @param int $accepted_args Optional. The number of arguments that should be passed to the $callback. Default is 1
      * @since    1.0.0
      */
-    public function add_filter($hook, $component, $callback, $priority = 10, $accepted_args = 1)
-    {
-        $this->filters = $this->add($this->filters, $hook, $component, $callback, $priority, $accepted_args);
+    public function add_filter(
+        $hook,
+        $component,
+        $callback,
+        $priority = 10,
+        $accepted_args = 1
+    ) {
+        $this->filters = $this->add(
+            $this->filters,
+            $hook,
+            $component,
+            $callback,
+            $priority,
+            $accepted_args
+        );
     }
 
     /**
@@ -94,19 +116,23 @@ class montonio_Givewp_Loader
      * @since    1.0.0
      * @access   private
      */
-    private function add($hooks, $hook, $component, $callback, $priority, $accepted_args)
-    {
-
-        $hooks[] = array(
-            'hook' => $hook,
-            'component' => $component,
-            'callback' => $callback,
-            'priority' => $priority,
-            'accepted_args' => $accepted_args
-        );
+    private function add(
+        $hooks,
+        $hook,
+        $component,
+        $callback,
+        $priority,
+        $accepted_args
+    ) {
+        $hooks[] = [
+            "hook" => $hook,
+            "component" => $component,
+            "callback" => $callback,
+            "priority" => $priority,
+            "accepted_args" => $accepted_args,
+        ];
 
         return $hooks;
-
     }
 
     /**
@@ -114,13 +140,13 @@ class montonio_Givewp_Loader
      */
     public function listen()
     {
-        require_once 'lib/MontonioPayments/MontonioPaymentsSDK.php';
-        require_once 'lib/MontonioPayments/MontonioPaymentsSDK.php';
+        require_once "lib/MontonioPayments/MontonioPaymentsSDK.php";
+        require_once "lib/MontonioPayments/MontonioPaymentsSDK.php";
 
-        $give_listener = give_clean(filter_input(INPUT_GET, 'give-listener'));
+        $give_listener = give_clean(filter_input(INPUT_GET, "give-listener"));
 
         // Must be a montonio listener to proceed.
-        if ('montonio' !== $give_listener) {
+        if ("montonio" !== $give_listener) {
             return;
         }
 
@@ -131,51 +157,65 @@ class montonio_Givewp_Loader
 
             // We send the payment_token query parameter upon successful payment
             // This is both with merchant_notification_url and merchant_return_url
-            $accessKey = give_get_option('montonio_access_key');
-            $token = isset($_REQUEST['payment_token']) ? $_REQUEST['payment_token'] : (isset($_REQUEST['order-token']) ? $_REQUEST['order-token'] : '');
-            $payment_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
-            $form_id = isset($_REQUEST['give-form-id']) ? $_REQUEST['give-form-id'] : '';
-            $secretKey = give_get_option('montonio_secret_key');
+            $accessKey = give_get_option("montonio_access_key");
+            $token = isset($_REQUEST["payment_token"])
+                ? $_REQUEST["payment_token"]
+                : (isset($_REQUEST["order-token"])
+                    ? $_REQUEST["order-token"]
+                    : "");
+            $payment_id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
+            $form_id = isset($_REQUEST["give-form-id"])
+                ? $_REQUEST["give-form-id"]
+                : "";
+            $secretKey = give_get_option("montonio_secret_key");
 
             if (empty($token) || empty($payment_id) || empty($form_id)) {
-                throw new Exception('Missing required parameters: ' . json_encode($_REQUEST));
+                throw new Exception(
+                    "Missing required parameters: " . json_encode($_REQUEST)
+                );
             }
 
-            $decoded = MontonioPaymentsSDK::decodePaymentToken($token, $secretKey);
+            $decoded = MontonioPaymentsSDK::decodePaymentToken(
+                $token,
+                $secretKey
+            );
 
-            Log::info('Decoded token:', ['decoded' => json_encode($decoded)]);
+            Log::info("Decoded token:", ["decoded" => json_encode($decoded)]);
 
-            if (!isset($decoded->accessKey) || !isset($decoded->merchant_reference) || !isset($decoded->payment_status)) {
-                throw new Exception('Invalid token structure: ' . json_encode($decoded));
+            if (
+                !isset($decoded->accessKey) ||
+                !isset($decoded->merchant_reference) ||
+                !isset($decoded->payment_status)
+            ) {
+                throw new Exception(
+                    "Invalid token structure: " . json_encode($decoded)
+                );
             }
 
             if (
                 $decoded->accessKey === $accessKey &&
                 $decoded->merchant_reference === $payment_id &&
-                $decoded->payment_status === 'PAID'
+                $decoded->payment_status === "PAID"
             ) {
-                give_update_payment_status($payment_id, 'publish');
-                Log::info('Payment successful', ['payment_id' => $payment_id]);
+                give_update_payment_status($payment_id, "publish");
+                Log::info("Payment successful", ["payment_id" => $payment_id]);
                 wp_redirect(give_get_success_page_uri());
             } else {
-                give_update_payment_status($payment_id, 'abandoned');
-                Log::info('Payment abandoned', [
-                    'payment_id' => $payment_id,
-                    'decoded' => json_encode($decoded),
-                    'accessKey_match' => $decoded->accessKey === $accessKey,
-                    'merchant_reference_match' => $decoded->merchant_reference === $payment_id,
-                    'payment_status' => $decoded->payment_status
+                give_update_payment_status($payment_id, "abandoned");
+                Log::info("Payment abandoned", [
+                    "payment_id" => $payment_id,
+                    "decoded" => json_encode($decoded),
+                    "accessKey_match" => $decoded->accessKey === $accessKey,
+                    "merchant_reference_match" =>
+                        $decoded->merchant_reference === $payment_id,
+                    "payment_status" => $decoded->payment_status,
                 ]);
                 wp_redirect(give_get_failed_transaction_uri());
             }
-
         } catch (Exception $exception) {
-            Log::warning(
-                'Montonio - Webhook Received',
-                [
-                    'Error' => $exception->getMessage()
-                ]
-            );
+            Log::warning("Montonio - Webhook Received", [
+                "Error" => $exception->getMessage(),
+            ]);
 
             status_header(400);
             exit();
@@ -192,11 +232,21 @@ class montonio_Givewp_Loader
     public function run()
     {
         foreach ($this->filters as $hook) {
-            add_filter($hook['hook'], array($hook['component'], $hook['callback']), $hook['priority'], $hook['accepted_args']);
+            add_filter(
+                $hook["hook"],
+                [$hook["component"], $hook["callback"]],
+                $hook["priority"],
+                $hook["accepted_args"]
+            );
         }
 
         foreach ($this->actions as $hook) {
-            add_action($hook['hook'], array($hook['component'], $hook['callback']), $hook['priority'], $hook['accepted_args']);
+            add_action(
+                $hook["hook"],
+                [$hook["component"], $hook["callback"]],
+                $hook["priority"],
+                $hook["accepted_args"]
+            );
         }
 
         // GIVEWP CODE STARTS HERE
@@ -212,15 +262,18 @@ class montonio_Givewp_Loader
 
         function montonio_for_give_register_payment_method($gateways)
         {
-            $gateways['montonio'] = array(
-                'admin_label' => __('Montonio', 'montonio-for-give'),
-                'checkout_label' => __('Montonio', 'montonio-for-give'),
-            );
+            $gateways["montonio"] = [
+                "admin_label" => __("Montonio", "montonio-for-give"),
+                "checkout_label" => __("Montonio", "montonio-for-give"),
+            ];
 
             return $gateways;
         }
 
-        add_filter('give_payment_gateways', 'montonio_for_give_register_payment_method');
+        add_filter(
+            "give_payment_gateways",
+            "montonio_for_give_register_payment_method"
+        );
 
         /**
          * Montonio Gateway form output
@@ -229,7 +282,6 @@ class montonio_Givewp_Loader
          **/
         function give_montonio_form_output($form_id)
         {
-
             printf(
                 '
                     <fieldset class="no-fields">
@@ -239,14 +291,17 @@ class montonio_Givewp_Loader
                         </p>
                     </fieldset>
                 ',
-                esc_html__('Donate with Montonio', 'give'),
-                esc_html__('How it works:', 'give'),
-                esc_html__('You will be redirected to Montonio to complete your donation. It supports payments from all Baltic and Finnish banks', 'give')
+                esc_html__("Donate with Montonio", "give"),
+                esc_html__("How it works:", "give"),
+                esc_html__(
+                    "You will be redirected to Montonio to complete your donation. It supports payments from all Baltic and Finnish banks",
+                    "give"
+                )
             );
             return true;
         }
 
-        add_action('give_montonio_cc_form', 'give_montonio_form_output');
+        add_action("give_montonio_cc_form", "give_montonio_form_output");
 
         /**
          * Register Section for Payment Gateway Settings.
@@ -260,15 +315,19 @@ class montonio_Givewp_Loader
 
         function montonio_for_give_register_payment_gateway_sections($sections)
         {
-
             // `montonio-settings` is the name/slug of the payment gateway section.
-            $sections['montonio-settings'] = __('Montonio', 'montonio-for-give');
+            $sections["montonio-settings"] = __(
+                "Montonio",
+                "montonio-for-give"
+            );
 
             return $sections;
         }
 
-        add_filter('give_get_sections_gateways', 'montonio_for_give_register_payment_gateway_sections');
-
+        add_filter(
+            "give_get_sections_gateways",
+            "montonio_for_give_register_payment_gateway_sections"
+        );
 
         /**
          * Register Admin Settings.
@@ -280,58 +339,134 @@ class montonio_Givewp_Loader
          *
          */
 
-        function montonio_for_give_register_payment_gateway_setting_fields($settings)
-        {
+        function montonio_for_give_register_payment_gateway_setting_fields(
+            $settings
+        ) {
             switch (give_get_current_setting_section()) {
-                case 'montonio-settings':
-                    $settings = array(
-                        array(
-                            'id' => 'give_title_montonio',
-                            'type' => 'title',
+                case "montonio-settings":
+                    $settings = [
+                        [
+                            "id" => "give_title_montonio",
+                            "type" => "title",
+                        ],
+                    ];
+
+                    // Existing settings
+                    $settings[] = [
+                        "name" => __("Enable Test Mode", "montonio-for-give"),
+                        "desc" => __("", "montonio-for-give"),
+                        "id" => "montonio_env",
+                        "type" => "checkbox",
+                    ];
+
+                    $settings[] = [
+                        "name" => __("Access key", "montonio-for-give"),
+                        "desc" => __("", "montonio-for-give"),
+                        "id" => "montonio_access_key",
+                        "type" => "text",
+                    ];
+
+                    $settings[] = [
+                        "name" => __("Secret key", "montonio-for-give"),
+                        "desc" => __("", "montonio-for-give"),
+                        "id" => "montonio_secret_key",
+                        "type" => "text",
+                    ];
+
+                    $settings[] = [
+                        "name" => __(
+                            'Bank transfer detail (e.g. "Donation")',
+                            "montonio-for-give"
                         ),
-                    );
+                        "desc" => __("", "montonio-for-give"),
+                        "id" => "montonio_merchant_name",
+                        "type" => "text",
+                    ];
 
-                    $settings[] = array(
-                        'name' => __('Enable Test Mode', 'montonio-for-give'),
-                        'desc' => __('', 'montonio-for-give'),
-                        'id' => 'montonio_env',
-                        'type' => 'checkbox',
-                    );
+                    // New settings for payment description customization
+                    $settings[] = [
+                        "name" => __(
+                            "Payment Description Components",
+                            "montonio-for-give"
+                        ),
+                        "desc" => __(
+                            "Select which components to include in the payment description",
+                            "montonio-for-give"
+                        ),
+                        "id" => "montonio_description_header",
+                        "type" => "title",
+                    ];
 
-                    $settings[] = array(
-                        'name' => __('Access key', 'montonio-for-give'),
-                        'desc' => __('', 'montonio-for-give'),
-                        'id' => 'montonio_access_key',
-                        'type' => 'text',
-                    );
+                    $settings[] = [
+                        "name" => __(
+                            "Include Donation ID",
+                            "montonio-for-give"
+                        ),
+                        "desc" => __(
+                            "Add donation ID to payment description",
+                            "montonio-for-give"
+                        ),
+                        "id" => "montonio_include_donation_id",
+                        "type" => "checkbox",
+                        "default" => "on",
+                    ];
 
-                    $settings[] = array(
-                        'name' => __('Secret key', 'montonio-for-give'),
-                        'desc' => __('', 'montonio-for-give'),
-                        'id' => 'montonio_secret_key',
-                        'type' => 'text',
-                    );
+                    $settings[] = [
+                        "name" => __(
+                            "Include Campaign Name",
+                            "montonio-for-give"
+                        ),
+                        "desc" => __(
+                            "Add form/campaign name to payment description",
+                            "montonio-for-give"
+                        ),
+                        "id" => "montonio_include_campaign_name",
+                        "type" => "checkbox",
+                        "default" => "off",
+                    ];
 
-                    $settings[] = array(
-                        'name' => __('Bank transfer detail (e.g. "Donation")', 'montonio-for-give'),
-                        'desc' => __('', 'montonio-for-give'),
-                        'id' => 'montonio_merchant_name',
-                        'type' => 'text',
-                    );
+                    $settings[] = [
+                        "name" => __(
+                            "Include Personal Code",
+                            "montonio-for-give"
+                        ),
+                        "desc" => __(
+                            "Add Estonian personal code to payment description (if provided)",
+                            "montonio-for-give"
+                        ),
+                        "id" => "montonio_include_personal_code",
+                        "type" => "checkbox",
+                        "default" => "on",
+                    ];
 
-                    $settings[] = array(
-                        'id' => 'give_title_montonio',
-                        'type' => 'sectionend',
-                    );
+                    $settings[] = [
+                        "name" => __(
+                            "Description Components Separator",
+                            "montonio-for-give"
+                        ),
+                        "desc" => __(
+                            'Character(s) to separate description components (e.g., " / " or " - ")',
+                            "montonio-for-give"
+                        ),
+                        "id" => "montonio_description_separator",
+                        "type" => "text",
+                        "default" => " / ",
+                    ];
+
+                    $settings[] = [
+                        "id" => "give_title_montonio",
+                        "type" => "sectionend",
+                    ];
 
                     break;
-            } // End switch().
-
+            }
             return $settings;
         }
 
-        add_filter('give_get_settings_gateways', 'montonio_for_give_register_payment_gateway_setting_fields');
-
+        add_filter(
+            "give_get_settings_gateways",
+            "montonio_for_give_register_payment_gateway_setting_fields"
+        );
 
         /**
          * Process Square checkout submission.
@@ -346,7 +481,6 @@ class montonio_Givewp_Loader
 
         function montonio_for_give_process_montonio_donation($posted_data)
         {
-
             // Make sure we don't have any left over errors present.
             give_clear_errors();
 
@@ -355,49 +489,56 @@ class montonio_Givewp_Loader
 
             // No errors, proceed.
             if (!$errors) {
-
-                $form_id = intval($posted_data['post_data']['give-form-id']);
-                $price_id = !empty($posted_data['post_data']['give-price-id']) ? $posted_data['post_data']['give-price-id'] : 0;
-                $donation_amount = !empty($posted_data['price']) ? $posted_data['price'] : 0;
-                $purchase_key = $posted_data['purchase_key'];
+                $form_id = intval($posted_data["post_data"]["give-form-id"]);
+                $price_id = !empty($posted_data["post_data"]["give-price-id"])
+                    ? $posted_data["post_data"]["give-price-id"]
+                    : 0;
+                $donation_amount = !empty($posted_data["price"])
+                    ? $posted_data["price"]
+                    : 0;
+                $purchase_key = $posted_data["purchase_key"];
 
                 // Setup the payment details.
-                $donation_data = array(
-                    'price' => $donation_amount,
-                    'give_form_title' => $posted_data['post_data']['give-form-title'],
-                    'give_form_id' => $form_id,
-                    'give_price_id' => $price_id,
-                    'date' => $posted_data['date'],
-                    'user_email' => $posted_data['user_email'],
-                    'purchase_key' => $posted_data['purchase_key'],
-                    'currency' => give_get_currency($form_id),
-                    'user_info' => $posted_data['user_info'],
-                    'status' => 'pending',
-                    'gateway' => 'montonio',
-                );
+                $donation_data = [
+                    "price" => $donation_amount,
+                    "give_form_title" =>
+                        $posted_data["post_data"]["give-form-title"],
+                    "give_form_id" => $form_id,
+                    "give_price_id" => $price_id,
+                    "date" => $posted_data["date"],
+                    "user_email" => $posted_data["user_email"],
+                    "purchase_key" => $posted_data["purchase_key"],
+                    "currency" => give_get_currency($form_id),
+                    "user_info" => $posted_data["user_info"],
+                    "status" => "pending",
+                    "gateway" => "montonio",
+                ];
 
                 // Record the pending donation.
                 $payment_id = give_insert_payment($donation_data);
 
                 // Assign required data to array of donation data for future reference.
-                $donation_data['purchase_key'] = $payment_id;
-                $checkout_email = $donation_data['user_email'];
-                $checkout_first_name = $donation_data['user_info']['first_name'];
-                $checkout_last_name = $donation_data['user_info']['last_name'];
+                $donation_data["purchase_key"] = $payment_id;
+                $checkout_email = $donation_data["user_email"];
+                $checkout_first_name =
+                    $donation_data["user_info"]["first_name"];
+                $checkout_last_name = $donation_data["user_info"]["last_name"];
 
                 if (!$payment_id) {
-
                     // Record Gateway Error as Pending Donation in Give is not created.
                     give_record_gateway_error(
-                        __('montonio Error', 'montonio-for-give'),
+                        __("montonio Error", "montonio-for-give"),
                         sprintf(
-                        /* translators: %s Exception error message. */
-                            __('Unable to create a pending donation with Give.', 'montonio-for-give')
+                            /* translators: %s Exception error message. */
+                            __(
+                                "Unable to create a pending donation with Give.",
+                                "montonio-for-give"
+                            )
                         )
                     );
 
                     // Send user back to checkout.
-                    give_send_back_to_checkout('?payment-mode=montonio');
+                    give_send_back_to_checkout("?payment-mode=montonio");
                     return;
                 }
 
@@ -407,77 +548,130 @@ class montonio_Givewp_Loader
                 /**
                  * MONTONIO STARTS HERE
                  */
-                require_once 'lib/MontonioPayments/MontonioPaymentsSDK.php';
-                require_once 'lib/MontonioPayments/MontonioPaymentsSDK.php';
+                require_once "lib/MontonioPayments/MontonioPaymentsSDK.php";
+                require_once "lib/MontonioPayments/MontonioPaymentsSDK.php";
 
                 // Get values from Montonio payment method settings page
-                $accessKey = give_get_option('montonio_access_key');
-                $secretKey = give_get_option('montonio_secret_key');
-                $merchantName = give_get_option('montonio_merchant_name');
+                $accessKey = give_get_option("montonio_access_key");
+                $secretKey = give_get_option("montonio_secret_key");
+                $merchantName = give_get_option("montonio_merchant_name");
 
                 $env = null;
-                switch (give_get_option('montonio_env')) {
+                switch (give_get_option("montonio_env")) {
                     case true:
-                        $env = 'sandbox';
+                        $env = "sandbox";
                         break;
                     case false:
-                        $env = 'production';
+                        $env = "production";
                         break;
                 }
 
-                $sdk = new MontonioPaymentsSDK(
-                    $accessKey,
-                    $secretKey,
-                    $env
-                );
+                $sdk = new MontonioPaymentsSDK($accessKey, $secretKey, $env);
 
-                $merchant_notification_url = get_site_url() . '/?give-listener=montonio&id=' . $payment_id . '&give-form-id=' . $form_id . '&payment-mode=montonio';
-                $merchant_return_url = get_site_url() . '/?give-listener=montonio&id=' . $payment_id . '&give-form-id=' . $form_id . '&payment-mode=montonio';
+                $merchant_notification_url =
+                    get_site_url() .
+                    "/?give-listener=montonio&id=" .
+                    $payment_id .
+                    "&give-form-id=" .
+                    $form_id .
+                    "&payment-mode=montonio";
+                $merchant_return_url =
+                    get_site_url() .
+                    "/?give-listener=montonio&id=" .
+                    $payment_id .
+                    "&give-form-id=" .
+                    $form_id .
+                    "&payment-mode=montonio";
 
                 // Checking current WP website locale (Polylang plugin only) to set the language for Montonio payment page
-	            if ( function_exists( 'pll_the_languages' ) ) {
-		            switch (pll_current_language()) {
-			            case "et":
-				            $current_locale = "et";
-				            break;
-			            case "lv":
-				            $current_locale = "lv";
-				            break;
-			            case "lt":
-				            $current_locale = "lt";
-				            break;
-			            case "pl_PL":
-				            $current_locale = "pl";
-				            break;
-			            case "fi":
-				            $current_locale = "fi";
-				            break;
-			            case "ru_RU" or "ru_UA":
-				            $current_locale = "ru";
-				            break;
-			            default:
-				            $current_locale = 'en_US';
-				            break;
-		            }
-	            } else {
-		            $current_locale = 'en_US';
-	            }
+                if (function_exists("pll_the_languages")) {
+                    switch (pll_current_language()) {
+                        case "et":
+                            $current_locale = "et";
+                            break;
+                        case "lv":
+                            $current_locale = "lv";
+                            break;
+                        case "lt":
+                            $current_locale = "lt";
+                            break;
+                        case "pl_PL":
+                            $current_locale = "pl";
+                            break;
+                        case "fi":
+                            $current_locale = "fi";
+                            break;
+                        case "ru_RU" or "ru_UA":
+                            $current_locale = "ru";
+                            break;
+                        default:
+                            $current_locale = "en_US";
+                            break;
+                    }
+                } else {
+                    $current_locale = "en_US";
+                }
 
-                $paymentData = array(
-                    'amount' => $donation_amount, // Make sure this is a float
-                    'currency' => 'EUR', // Currently only EUR is supported by Montonio
-                    'merchant_reference' => $payment_id, // The order id in your system
-                    'merchant_name' => $merchantName,
-                    'checkout_email' => $checkout_email,
-                    'checkout_first_name' => $checkout_first_name,
-                    'checkout_last_name' => $checkout_last_name,
-                    'merchant_notification_url' => $merchant_notification_url, // We will send a webhook after the payment is complete
-                    'merchant_return_url' => $merchant_return_url, // Where to redirect the customer to after the payment
-//                  'preselected_aspsp'         => 'LHVBEE22', // The preselected ASPSP identifier
-                    // For card payments:
-                    // 'preselected_aspsp'         => 'CARD'
-                    'preselected_locale' => $current_locale, // See available locale options in the docs
-                );
+                // Get form/campaign name if needed
+                $campaign_name = "";
+                if (
+                    give_get_option("montonio_include_campaign_name") === "on"
+                ) {
+                    $campaign_name = get_the_title($form_id);
+                }
+
+                // Get personal code if enabled and provided
+                $personal_code = "";
+                if (
+                    give_get_option("montonio_include_personal_code") ===
+                        "on" &&
+                    isset($_POST["give_estonia_personal_code"]) &&
+                    !empty($_POST["give_estonia_personal_code"])
+                ) {
+                    $personal_code = sanitize_text_field(
+                        $_POST["give_estonia_personal_code"]
+                    );
+                    give_update_payment_meta(
+                        $payment_id,
+                        "give_estonia_personal_code",
+                        $personal_code
+                    );
+                }
+
+                $paymentData = [
+                    "amount" => $donation_amount,
+                    "currency" => "EUR",
+                    "merchant_reference" => $payment_id,
+                    "merchant_name" => give_get_option(
+                        "montonio_merchant_name"
+                    ),
+                    "merchant_notification_url" => $merchant_notification_url,
+                    "merchant_return_url" => $merchant_return_url,
+                    "checkout_email" => $checkout_email,
+                    "checkout_first_name" => $checkout_first_name,
+                    "checkout_last_name" => $checkout_last_name,
+                    "donation_id" => $payment_id,
+                    "campaign_name" => $campaign_name,
+                    "personal_code" => $personal_code,
+                    "description_settings" => [
+                        "include_donation_id" => give_get_option(
+                            "montonio_include_donation_id",
+                            "on"
+                        ),
+                        "include_campaign_name" => give_get_option(
+                            "montonio_include_campaign_name",
+                            "off"
+                        ),
+                        "include_personal_code" => give_get_option(
+                            "montonio_include_personal_code",
+                            "on"
+                        ),
+                        "separator" => give_get_option(
+                            "montonio_description_separator",
+                            " / "
+                        ),
+                    ],
+                ];
 
                 $sdk->setPaymentData($paymentData);
                 $paymentUrl = $sdk->getPaymentUrl();
@@ -491,10 +685,13 @@ class montonio_Givewp_Loader
                  */
             } else {
                 // Send user back to checkout.
-                give_send_back_to_checkout('?payment-mode=montonio');
+                give_send_back_to_checkout("?payment-mode=montonio");
             } // End if().
-		}
+        }
 
-        add_action('give_gateway_montonio', 'montonio_for_give_process_montonio_donation');
+        add_action(
+            "give_gateway_montonio",
+            "montonio_for_give_process_montonio_donation"
+        );
     }
 }
