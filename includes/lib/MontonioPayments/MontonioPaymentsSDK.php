@@ -155,7 +155,7 @@ class MontonioPaymentsSDK
                     "paymentDescription" => $this->_generatePaymentDescription(),
                 ],
             ],
-            "exp" => time() + 10 * 60, // Token expires in 10 minutes
+            "exp" => time() + 10 * 60, // Token expires after 10 minutes
         ];
 
         if (isset($this->_paymentData["preselected_aspsp"])) {
