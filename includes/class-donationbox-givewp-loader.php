@@ -406,6 +406,20 @@ class donationbox_Givewp_Loader
 
                     $settings[] = [
                         "name" => __(
+                            "Lock Payment Amount",
+                            "donationbox-for-give"
+                        ),
+                        "desc" => __(
+                            "Lock the donation amount in Donationbox so the donor cannot change it (uses cashier mode). Enabled by default.",
+                            "donationbox-for-give"
+                        ),
+                        "id" => "donationbox_lock_amount",
+                        "type" => "checkbox",
+                        "default" => "on",
+                    ];
+
+                    $settings[] = [
+                        "name" => __(
                             "Additional URL Parameters",
                             "donationbox-for-give"
                         ),
@@ -558,6 +572,11 @@ class donationbox_Givewp_Loader
                 $strp = give_get_option("donationbox_strp");
                 if (!empty($strp)) {
                     $params["strp"] = $strp;
+                }
+
+                // Lock payment amount (cashier mode) - enabled by default
+                if (give_get_option("donationbox_lock_amount", "on") === "on") {
+                    $params["action"] = "cashier";
                 }
 
                 // Tax deduction
