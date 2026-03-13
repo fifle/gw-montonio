@@ -322,7 +322,7 @@ class donationbox_Givewp_Loader
                     $settings[] = [
                         "name" => __("Language", "donationbox-for-give"),
                         "desc" => __(
-                            "Display language for Donationbox (locale parameter)",
+                            "Display language for Donationbox. Auto-detected from Polylang if active, otherwise uses this setting.",
                             "donationbox-for-give"
                         ),
                         "id" => "donationbox_locale",
@@ -508,6 +508,22 @@ class donationbox_Givewp_Loader
                     return;
                 }
 
+                // Save Estonian personal code if provided
+                $personal_code = "";
+                if (
+                    isset($_POST["give_estonia_personal_code"]) &&
+                    !empty($_POST["give_estonia_personal_code"])
+                ) {
+                    $personal_code = sanitize_text_field(
+                        $_POST["give_estonia_personal_code"]
+                    );
+                    give_update_payment_meta(
+                        $payment_id,
+                        "give_estonia_personal_code",
+                        $personal_code
+                    );
+                }
+
                 // Build the Donationbox embed URL
                 $base_url = give_get_option(
                     "donationbox_base_url",
@@ -547,8 +563,22 @@ class donationbox_Givewp_Loader
                     $params["country"] = $country;
                 }
 
-                // Locale
+                // Locale - auto-detect from Polylang if available, otherwise use setting
                 $locale = give_get_option("donationbox_locale", "en");
+                if (function_exists("pll_current_language")) {
+                    $pll_lang = pll_current_language();
+                    // Map Polylang language codes to Donationbox locale codes
+                    $locale_map = [
+                        "et" => "ee",
+                        "ru" => "ru",
+                        "en" => "en",
+                        "lv" => "lv",
+                        "lt" => "lt",
+                    ];
+                    if (isset($locale_map[$pll_lang])) {
+                        $locale = $locale_map[$pll_lang];
+                    }
+                }
                 if (!empty($locale)) {
                     $params["locale"] = $locale;
                 }
@@ -577,6 +607,11 @@ class donationbox_Givewp_Loader
                 // Lock payment amount (cashier mode) - enabled by default
                 if (give_get_option("donationbox_lock_amount", "on") === "on") {
                     $params["action"] = "cashier";
+                }
+
+                // Append personal code for tax deduction if provided
+                if (!empty($personal_code)) {
+                    $params["taxik"] = $personal_code;
                 }
 
                 // Tax deduction
