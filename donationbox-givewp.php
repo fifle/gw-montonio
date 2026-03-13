@@ -16,7 +16,7 @@
  * Plugin Name:       Payment Gateway for Donationbox on GiveWP
  * Plugin URI:
  * Description:       Add-on for GiveWP Donation Plugin allows to accept payments via Donationbox in a lightbox iframe. Payments remain pending for manual admin review.
- * Version:           1.0.0
+ * Version:           1.0.2
  * Author:            Pavel Fleisher
  * Author URI:        http://fleisher.ee
  * License:           GPL-3.0+
@@ -33,7 +33,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently plugin version.
  */
-define( 'DONATIONBOX_GIVEWP_VERSION', '1.0.0' );
+define( 'DONATIONBOX_GIVEWP_VERSION', '1.0.2' );
 
 /**
  * The code that runs during plugin activation.

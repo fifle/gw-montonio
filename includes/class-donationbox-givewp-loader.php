@@ -253,34 +253,62 @@ class donationbox_Givewp_Loader
                     ];
 
                     $settings[] = [
-                        "name" => __("Base URL", "donationbox-for-give"),
+                        "name" => __("Donationbox instance", "donationbox-for-give"),
                         "desc" => __(
-                            "Donationbox instance URL (e.g. https://donationbox.ee)",
+                            "Select the Donationbox service by country. Base URL is set automatically.",
                             "donationbox-for-give"
                         ),
-                        "id" => "donationbox_base_url",
-                        "type" => "text",
-                        "default" => "https://donationbox.ee",
-                    ];
-
-                    $settings[] = [
-                        "name" => __("Campaign Title", "donationbox-for-give"),
-                        "desc" => __(
-                            "Name of the donation campaign (campaign_title parameter)",
-                            "donationbox-for-give"
-                        ),
-                        "id" => "donationbox_campaign_title",
-                        "type" => "text",
+                        "id" => "donationbox_base_country",
+                        "type" => "select",
+                        "options" => [
+                            "EE" => __("Estonia (donationbox.ee)", "donationbox-for-give"),
+                            "LV" => __("Latvia (donationbox.lv)", "donationbox-for-give"),
+                            "LT" => __("Lithuania (donationbox.lt)", "donationbox-for-give"),
+                        ],
+                        "default" => "EE",
                     ];
 
                     $settings[] = [
                         "name" => __("Payment Detail", "donationbox-for-give"),
                         "desc" => __(
-                            "Bank transfer description (detail parameter)",
+                            "Bank transfer description (detail parameter). The selected form/campaign name can be appended; configure below.",
                             "donationbox-for-give"
                         ),
                         "id" => "donationbox_detail",
                         "type" => "text",
+                    ];
+
+                    $settings[] = [
+                        "name" => __("Include campaign name in payment detail", "donationbox-for-give"),
+                        "desc" => __(
+                            "Append the GiveWP form (campaign) name to the bank transfer description. Uncheck to omit.",
+                            "donationbox-for-give"
+                        ),
+                        "id" => "donationbox_detail_include_campaign",
+                        "type" => "checkbox",
+                        "default" => "on",
+                    ];
+
+                    $settings[] = [
+                        "name" => __("Text before campaign name", "donationbox-for-give"),
+                        "desc" => __(
+                            "Optional text shown before the campaign name in the payment detail (e.g. \"Campaign: \").",
+                            "donationbox-for-give"
+                        ),
+                        "id" => "donationbox_detail_campaign_before",
+                        "type" => "text",
+                        "default" => "",
+                    ];
+
+                    $settings[] = [
+                        "name" => __("Text after campaign name", "donationbox-for-give"),
+                        "desc" => __(
+                            "Optional text shown after the campaign name in the payment detail (e.g. \" - Donation\").",
+                            "donationbox-for-give"
+                        ),
+                        "id" => "donationbox_detail_campaign_after",
+                        "type" => "text",
+                        "default" => "",
                     ];
 
                     $settings[] = [
@@ -524,22 +552,43 @@ class donationbox_Givewp_Loader
                     );
                 }
 
-                // Build the Donationbox embed URL
-                $base_url = give_get_option(
-                    "donationbox_base_url",
-                    "https://donationbox.ee"
-                );
+                // Build the Donationbox embed URL - base URL from country selector (fallback: legacy base_url)
+                $base_urls = [
+                    "EE" => "https://donationbox.ee",
+                    "LV" => "https://donationbox.lv",
+                    "LT" => "https://donationbox.lt",
+                ];
+                $base_country = give_get_option("donationbox_base_country", "");
+                if (!empty($base_country) && isset($base_urls[$base_country])) {
+                    $base_url = $base_urls[$base_country];
+                } else {
+                    $legacy_url = give_get_option("donationbox_base_url", "https://donationbox.ee");
+                    $base_url = !empty($legacy_url) ? $legacy_url : "https://donationbox.ee";
+                }
                 $base_url = rtrim($base_url, "/");
 
                 $params = [];
 
-                // Required params
-                $campaign_title = give_get_option("donationbox_campaign_title");
-                if (!empty($campaign_title)) {
-                    $params["campaign_title"] = $campaign_title;
+                // Campaign title from the selected GiveWP form (dynamic per campaign)
+                $form_title = isset($posted_data["post_data"]["give-form-title"])
+                    ? $posted_data["post_data"]["give-form-title"]
+                    : "";
+                if (!empty($form_title)) {
+                    $params["campaign_title"] = $form_title;
                 }
 
+                // Payment detail: base text + optional campaign name (before/after) + optional personal code
                 $detail = give_get_option("donationbox_detail");
+                $include_campaign = give_get_option("donationbox_detail_include_campaign", "on") === "on";
+                if ($include_campaign && !empty($form_title)) {
+                    $before = give_get_option("donationbox_detail_campaign_before", "");
+                    $after = give_get_option("donationbox_detail_campaign_after", "");
+                    $campaign_part = $before . $form_title . $after;
+                    $detail = trim(($detail !== "" ? $detail . " " : "") . $campaign_part);
+                }
+                if (!empty($personal_code)) {
+                    $detail = trim(($detail !== "" ? $detail . " " : "") . $personal_code);
+                }
                 if (!empty($detail)) {
                     $params["detail"] = $detail;
                 }
