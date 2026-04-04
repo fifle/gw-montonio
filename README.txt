@@ -4,7 +4,7 @@ Donate link: https://donationbox.ee/donation?campaign_title=Buy%20me%20a%20hot%2
 Tags: banklink, pangalink, estonia, latvia, lithuania, poland, finland, payment gateway, givewp, internet bank, i-bank
 Requires at least: 3.0.1
 Tested up to: 6.4.2
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
